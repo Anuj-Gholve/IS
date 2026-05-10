@@ -1,12 +1,24 @@
 text = "Hello World"
-print("Original String:", text)
-print()
+
+print("ASCII:")
+for ch in text:
+    print(ord(ch), end=" ")
+
+print("\n")
+
 print("AND with 127:")
 for ch in text:
-    result = ord(ch) & 127
-    print(f"  '{ch}' ({ord(ch)}) AND 127 = {result} -> '{chr(result)}'")
-print()
+    print(ord(ch) & 127, end=" ")
+
+print("\n")
+
+print("OR with 127:")
+for ch in text:
+    print(ord(ch) | 127, end=" ")
+
+print("\n")
+
 print("XOR with 127:")
 for ch in text:
-    result = ord(ch) ^ 127
-    print(f"  '{ch}' ({ord(ch)}) XOR 127 = {result} -> '{chr(result)}'")
+    print(ord(ch) ^ 127, end=" ")
+    
