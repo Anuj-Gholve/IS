@@ -1,4 +1,5 @@
 import math
+
 def encrypt(msg, key):
     cipher = ""
     cols = len(key)
@@ -12,6 +13,7 @@ def encrypt(msg, key):
         for row in range(rows):
             cipher += matrix[row][col]
     return cipher
+
 def decrypt(cipher, key):
     cols = len(key)
     rows = math.ceil(len(cipher) / cols)
@@ -27,9 +29,12 @@ def decrypt(cipher, key):
         for col in range(cols):
             plain += matrix[row][col]
     return plain.rstrip('_')
+
 msg = input("Enter message: ")
 key = input("Enter key: ")
+
 encrypted = encrypt(msg, key)
 print("Encrypted:", encrypted)
+
 decrypted = decrypt(encrypted, key)
 print("Decrypted:", decrypted)
