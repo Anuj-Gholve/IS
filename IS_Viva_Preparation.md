@@ -1,439 +1,379 @@
-# 🛡️ Information Security — Viva Preparation Guide
+A1 — Bitwise Operations (AND, OR, XOR)
+What is this Practical?
 
-> Covers all 6 practicals: A1 → A6. Each section has **Aim, Theory, Code Walkthrough, Sample I/O, and Viva Q&A**.
+Demonstrates bitwise AND, OR, and XOR operations on ASCII values of "Hello World" using value 127.
 
----
+Code Explanation
+ord(ch) converts character to ASCII integer.
+& 127 → keeps lower 7 bits.
+| 127 → sets lower 7 bits to 1.
+^ 127 → flips lower 7 bits.
 
-## A1 — Bitwise Operations (AND & XOR)
+Example:
 
-**File:** [A1.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A1.py)
+'H' = 72 = 01001000
+72 ^ 127 = 55
+Important Theory
+ASCII maps characters to integers.
+127 = 01111111
 
-### Aim
-Perform bitwise AND and XOR operations on each character of "Hello World" with the value 127.
+XOR is reversible:
 
-### Theory
-| Operation | Symbol | Rule |
-|-----------|--------|------|
-| AND | `&` | Both bits must be 1 → 1 |
-| XOR | `^` | Different bits → 1, Same bits → 0 |
+A⊕K⊕K=A
+AND is not reversible because information is lost.
+Viva Questions & Answers
+Q: What does ord() do?
 
-- **127 in binary** = `01111111` (7 bits set).
-- `AND 127` masks out the 8th bit (MSB), keeping only the lower 7 bits — equivalent to ensuring ASCII range.
-- `XOR 127` flips the lower 7 bits — acts as a simple reversible cipher.
+A: Converts character into ASCII/Unicode integer value.
 
-### Code Walkthrough
-1. `ord(ch)` converts character to its ASCII integer.
-2. `& 127` / `^ 127` performs the bitwise operation.
-3. `chr(result)` converts the result back to a character.
+Q: Why is 127 used?
 
-### Sample Output
-```
-AND with 127:
-  'H' (72) AND 127 = 72 -> 'H'
-XOR with 127:
-  'H' (72) XOR 127 = 55 -> '7'
-```
+A: 127 = 01111111 in binary. It affects only lower 7 bits.
 
-### Viva Q&A
+Q: Why is XOR important in cryptography?
 
-**Q: Why is 127 used?**
-A: 127 = `01111111`. AND with 127 strips the MSB (useful for ASCII). XOR with 127 flips lower 7 bits (simple cipher).
+A: XOR is reversible, fast, and widely used in encryption algorithms.
 
-**Q: Is XOR reversible?**
-A: Yes! `A XOR K XOR K = A`. Applying XOR twice with the same key returns the original.
+Q: Is XOR reversible?
 
-**Q: What is the difference between AND and XOR in cryptography?**
-A: AND loses information (not reversible). XOR is reversible and is the backbone of many ciphers (DES, AES, OTP).
+A: Yes. A ^ K ^ K = A.
 
-**Q: What happens if we AND 'H' (72) with 127?**
-A: 72 = `01001000`, 127 = `01111111`. Result = `01001000` = 72 = 'H'. Since 'H' is already < 128, the result is unchanged.
+Q: What is One-Time Pad?
 
-**Q: What is a truth table for XOR?**
-A: `0^0=0, 0^1=1, 1^0=1, 1^1=0`.
+A: OTP uses XOR with a truly random key of same length.
 
----
+Q: Difference between AND and XOR?
 
-## A2 — Columnar Transposition Cipher
+A: AND loses information; XOR preserves information and is reversible.
 
-**File:** [A2.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A2.py)
+A2 — Columnar Transposition Cipher
+What is this Practical?
 
-### Aim
-Implement encryption and decryption using the Columnar Transposition Cipher.
+Implements a classical transposition cipher where characters are rearranged using a key.
 
-### Theory
-- A **transposition cipher** rearranges characters without substituting them.
-- The plaintext is written row-by-row into a matrix whose column count = key length.
-- Columns are read out in the **alphabetical order of the key** to produce ciphertext.
+Code Explanation
+Encryption
 
-**Example:** Message = `HELLO WORLD`, Key = `HACK`
+Find rows using:
 
-Key order: H=2, A=0, C=1, K=3 → read columns in order 0,1,2,3 → columns: A, C, H, K.
+rows = ceil(len(msg)/len(key))
+Pad message using _
+Fill matrix row-wise
+Sort key columns
+Read columns in sorted order
+Decryption
+Create empty matrix
+Fill columns in key order
+Read row-wise
+Remove padding
+Important Theory
+Characters are rearranged, not replaced.
+This is a transposition cipher.
+Security is weak alone.
+Viva Questions & Answers
+Q: Is this substitution or transposition?
 
-### Code Walkthrough
+A: Transposition.
 
-**Encrypt:**
-1. Calculate `rows = ceil(len(msg) / cols)`.
-2. Pad message with `_` if needed.
-3. Fill a matrix row-by-row.
-4. `key_order = sorted(range(cols), key=lambda k: key[k])` → gets column indices sorted by key character.
-5. Read columns in `key_order` to produce ciphertext.
+Q: Why use padding?
 
-**Decrypt:**
-1. Create an empty matrix.
-2. Fill column-by-column in key order from the ciphertext.
-3. Read row-by-row to recover plaintext; strip trailing `_`.
+A: To fill the matrix completely.
 
-### Sample I/O
-```
-Enter message: HELLO WORLD
-Enter key: HACK
-Encrypted: EWL LOLDHOR_L
-Decrypted: HELLO WORLD
-```
+Q: What does sorted(range(cols), key=lambda k:key[k]) do?
 
-### Viva Q&A
+A: Sorts column indices based on alphabetical order of key letters.
 
-**Q: What type of cipher is this — substitution or transposition?**
-A: Transposition. Characters are rearranged, not replaced.
+Q: What if key has repeated letters?
 
-**Q: Why do we pad with underscores?**
-A: To fill the matrix completely so every column has the same length.
+A: Python stable sorting preserves order.
 
-**Q: How is the key used to determine column order?**
-A: Characters in the key are sorted alphabetically; their original indices give the column read order.
+Q: Time complexity?
 
-**Q: What is the time complexity?**
-A: O(n) where n = message length (we iterate through the message a constant number of times).
+A: O(n)
 
-**Q: Is this cipher secure?**
-A: Not by modern standards. It can be broken by frequency analysis and known-plaintext attacks. Often combined with substitution (product cipher) for better security.
+Q: Difference between Rail Fence and Columnar Cipher?
 
-**Q: Difference between columnar and rail-fence transposition?**
-A: Rail-fence writes in a zigzag pattern across rows. Columnar writes row-by-row and reads column-by-column based on key order.
+A: Rail Fence uses zigzag pattern; Columnar uses matrix columns.
 
----
+A3 — DES (Simplified Feistel Cipher)
+What is this Practical?
 
-## A3 — DES (Data Encryption Standard)
+Implements a simplified DES-like Feistel cipher using permutations, XOR, and S-Boxes.
 
-**File:** [A3.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A3.py)
+Code Explanation
+Function	Purpose
+permute()	Rearranges bits
+xor()	XOR operation
+sbox_lookup()	S-Box substitution
+feistel()	Expansion → XOR → S-Boxes → P4
+generate_keys()	Generates round keys
+encrypt()	Feistel encryption
+decrypt()	Same process with reversed keys
+Important Theory
 
-### Aim
-Implement the DES algorithm in pure Python (no libraries).
+Feistel structure:
 
-### Theory
-- **Type:** Symmetric block cipher.
-- **Block size:** 64 bits. **Key size:** 64 bits (56 effective + 8 parity).
-- **Rounds:** 16 rounds of a Feistel network.
-- **Structure:** Feistel cipher — same structure for encryption & decryption (just reverse key order).
+L
+i+1
+	​
 
-**Steps:**
-1. **Initial Permutation (IP)** — rearranges the 64 input bits.
-2. Split into **Left (32 bits)** and **Right (32 bits)**.
-3. **16 Feistel Rounds:** each round applies Expansion → XOR with round key → S-Box substitution → Permutation (P).
-4. **Swap** left and right after last round.
-5. **Final Permutation (FP)** — inverse of IP.
+=R
+i
+	​
 
-**Key Schedule:**
-1. Apply **PC-1** (64→56 bits, removes parity bits).
-2. Split into C and D (28 bits each).
-3. For each round: left-shift C and D, then apply **PC-2** (56→48 bits) to get round key.
+R
+i+1
+	​
 
-### Code Walkthrough
+=L
+i
+	​
 
-| Function | Purpose |
-|----------|---------|
-| `permute(block, table)` | Rearranges bits according to a permutation table |
-| `left_shift(bits, n)` | Circular left shift by n positions |
-| `xor(a, b)` | Bitwise XOR of two bit arrays |
-| `str_to_bits(s)` | String → list of bits (8 bits per char) |
-| `bits_to_hex(bits)` | Bits → hex string |
-| `generate_keys(key_bits)` | Produces 16 round keys using PC-1, shifts, PC-2 |
-| `des_round(L, R, key)` | One Feistel round: E → XOR → S-Box → P → XOR with L |
-| `des(msg_bits, keys)` | Full DES: IP → 16 rounds → swap → FP |
+⊕F(R
+i
+	​
 
-**S-Box lookup (critical):** Each 6-bit chunk → row = bit0+bit5, col = bits1-4 → lookup 4-bit value.
+,K
+i
+	​
 
-### Sample I/O
-```
-Enter 8-char message: HELLO123
-Enter 8-char key: MYSECRET
-Encrypted (hex): 2a1c5e8b3f7d4a90
-Decrypted: HELLO123
-```
+)
+S-Boxes provide confusion.
+Permutations provide diffusion.
+Decryption uses reversed keys.
+Viva Questions & Answers
+Q: What is a Feistel cipher?
 
-### Viva Q&A
+A: Cipher structure using split halves and XOR operations.
 
-**Q: What is a Feistel cipher?**
-A: A structure where plaintext is split into halves; one half is transformed and XORed with the other. Decryption uses the same algorithm with reversed keys.
+Q: Why are S-Boxes important?
 
-**Q: Why does DES use 16 rounds?**
-A: Provides sufficient diffusion and confusion. Fewer rounds are vulnerable to differential/linear cryptanalysis.
+A: They provide non-linearity and confusion.
 
-**Q: What is the purpose of S-Boxes?**
-A: They provide **non-linearity** (confusion). They map 6 bits → 4 bits using a non-linear lookup table.
+Q: How does decryption work?
 
-**Q: How is decryption done?**
-A: Same algorithm, but round keys are applied in reverse order (`round_keys[::-1]`).
+A: Same algorithm with keys reversed.
 
-**Q: Why is DES considered insecure today?**
-A: 56-bit key is too short — brute-force is feasible. Replaced by AES. Triple-DES (3DES) was a temporary fix.
+Q: What is the Avalanche Effect?
 
-**Q: What is the Avalanche Effect?**
-A: A small change in input (1 bit) causes ~50% change in output. DES achieves this through multiple rounds of S-box + permutation.
+A: One-bit change changes ~50% output bits.
 
-**Q: What are IP and FP?**
-A: Initial Permutation shuffles bits before processing. Final Permutation is the inverse of IP, applied after all rounds.
+Q: Difference between real DES and this code?
 
-**Q: How many keys are generated and of what size?**
-A: 16 round keys, each 48 bits.
+A: Real DES uses:
 
----
+64-bit block
+56-bit key
+16 rounds
+8 S-Boxes
 
-## A4 — AES-128 (Advanced Encryption Standard)
+This code is simplified for learning.
 
-**File:** [A4.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A4.py)
+Q: Why is DES insecure?
 
-### Aim
-Implement AES-128 encryption and decryption in pure Python.
+A: 56-bit key can be brute-forced.
 
-### Theory
-- **Type:** Symmetric block cipher (NOT Feistel).
-- **Block size:** 128 bits (16 bytes). **Key size:** 128 bits.
-- **Rounds:** 10 (for AES-128). AES-192 has 12, AES-256 has 14.
-- State is a **4×4 byte matrix** (column-major order).
+Q: What is Triple DES?
 
-**Each round (1–9) has 4 steps:**
-1. **SubBytes** — substitute each byte using S-Box (non-linearity/confusion).
-2. **ShiftRows** — cyclically shift rows left (row 0: no shift, row 1: 1, row 2: 2, row 3: 3).
-3. **MixColumns** — matrix multiplication in GF(2⁸) (diffusion).
-4. **AddRoundKey** — XOR state with round key.
+A: Encrypt-Decrypt-Encrypt using multiple DES keys.
 
-**Round 10:** SubBytes → ShiftRows → AddRoundKey (no MixColumns).
+A4 — AES-128
+What is this Practical?
 
-**Key Expansion:** Generates 11 round keys (176 bytes) from the original 16-byte key using RotWord, SubWord, and RCON.
+Implements AES-128 encryption and decryption in Python.
 
-### Code Walkthrough
+Code Explanation
+Function	Purpose
+sub_bytes()	S-Box substitution
+shift_rows()	Row shifting
+mix_columns()	Diffusion using GF(2^8)
+add_round_key()	XOR with round key
+key_expansion()	Generate round keys
+xtime()	Multiply by 2 in GF(2^8)
+gmul()	Galois multiplication
+aes_encrypt()	Encryption
+aes_decrypt()	Decryption
+Important Theory
+AES is SPN (Substitution-Permutation Network).
+Block size = 128 bits.
+AES-128 uses 10 rounds.
+Uses GF(2^8) arithmetic.
+Viva Questions & Answers
+Q: Difference between AES and DES?
 
-| Function | Purpose |
-|----------|---------|
-| `sub_bytes(state)` | Replace each byte via S-Box lookup |
-| `shift_rows(s)` | Cyclic left-shift of rows |
-| `xtime(a)` | Multiply by 2 in GF(2⁸) — used in MixColumns |
-| `mix_columns(s)` | Matrix multiplication for diffusion |
-| `gmul(a, b)` | Galois Field multiplication (used in InvMixColumns) |
-| `add_round_key(state, key)` | XOR state with round key |
-| `key_expansion(key)` | Generate 44 words (176 bytes) of round keys |
-| `aes_encrypt / aes_decrypt` | Full 10-round AES process |
+A: AES uses SPN; DES uses Feistel.
 
-### Sample I/O
-```
-Enter message (up to 16 chars): Hello AES World!
-Enter key (16 chars): MySecretKey12345
-Encrypted (hex): 8a3b2c... (32 hex chars)
-Decrypted: Hello AES World!
-```
+Q: Steps in AES round?
+SubBytes
+ShiftRows
+MixColumns
+AddRoundKey
+Q: Why no MixColumns in final round?
 
-### Viva Q&A
+A: AES standard removes it in final round.
 
-**Q: How is AES different from DES?**
-A: AES uses a Substitution-Permutation Network (SPN), not Feistel. AES has 128-bit blocks (vs. 64). AES key: 128/192/256 bits (vs. 56). AES is much more secure and faster.
+Q: What is GF(2^8)?
 
-**Q: What is the S-Box and how is it generated?**
-A: Each byte is replaced: first find multiplicative inverse in GF(2⁸), then apply an affine transformation. It provides non-linearity.
+A: Galois Field with 256 values.
 
-**Q: What is GF(2⁸)?**
-A: Galois Field of 256 elements. Arithmetic is done modulo an irreducible polynomial `x⁸ + x⁴ + x³ + x + 1` (0x11B). Used in MixColumns.
+Q: What is xtime()?
 
-**Q: Why is there no MixColumns in the last round?**
-A: It's omitted to make the structure symmetric for encryption/decryption. Including it would add no security.
+A: Multiply by 2 in GF(2^8).
 
-**Q: What does `xtime` do?**
-A: Multiplies a byte by 2 in GF(2⁸). If MSB is set, left-shift and XOR with 0x1B (the irreducible polynomial).
+Q: What is RCON?
 
-**Q: How many round keys are generated?**
-A: 11 round keys (1 initial + 10 rounds) = 44 words = 176 bytes.
+A: Round constants used in key expansion.
 
-**Q: What is the role of RCON?**
-A: Round constant used in key expansion to break symmetry between rounds.
+Q: AES variants?
+AES-128 → 10 rounds
+AES-192 → 12 rounds
+AES-256 → 14 rounds
+Q: Real-world use of AES?
 
-**Q: What are the AES key sizes and their corresponding rounds?**
-A: AES-128 → 10 rounds, AES-192 → 12 rounds, AES-256 → 14 rounds.
+A: HTTPS, WiFi, VPNs, WhatsApp encryption.
 
----
+A5 — RSA Algorithm
+What is this Practical?
 
-## A5 — RSA Algorithm
+Implements RSA public-key encryption.
 
-**File:** [A5.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A5.py)
+Code Explanation
+Input primes p, q
 
-### Aim
-Implement RSA encryption and decryption in pure Python.
+Compute:
 
-### Theory
-- **Type:** Asymmetric (public-key) cipher.
-- Based on the mathematical difficulty of **factoring large numbers**.
+n = p*q
+phi = (p-1)*(q-1)
 
-**Key Generation:**
-1. Choose two primes **p** and **q**.
-2. Compute **n = p × q**.
-3. Compute **φ(n) = (p−1)(q−1)** (Euler's totient).
-4. Choose **e** such that `1 < e < φ(n)` and `gcd(e, φ(n)) = 1`.
-5. Compute **d = e⁻¹ mod φ(n)** (modular inverse using Extended Euclidean Algorithm).
-6. **Public key = (e, n)**, **Private key = (d, n)**.
+Find e:
 
-**Encrypt:** C = M^e mod n  
-**Decrypt:** M = C^d mod n
+gcd(e, phi) == 1
 
-### Code Walkthrough
+Find d:
 
-| Function | Purpose |
-|----------|---------|
-| `gcd(a, b)` | Euclidean algorithm to find GCD |
-| `extended_gcd(a, b)` | Returns GCD and Bézout coefficients (x, y) |
-| `mod_inverse(e, phi)` | Finds d such that `e × d ≡ 1 (mod φ)` |
-| `is_prime(n)` | Trial division primality test |
-| `generate_keys(p, q)` | Computes n, φ, e, d and returns key pair |
-| `encrypt(text, pub)` | Encrypts each character: `pow(ord(ch), e, n)` |
-| `decrypt(cipher, priv)` | Decrypts each number: `chr(pow(c, d, n))` |
+(e*d) % phi == 1
 
-### Sample I/O
-```
-Enter prime p: 61
-Enter prime q: 53
-Public Key  (e, n): (7, 3233)
-Private Key (d, n): (1783, 3233)
-Enter message: HI
-Encrypted: [2198, 2818]
-Decrypted: HI
-```
+Encrypt:
 
-### Viva Q&A
+cipher = (msg ** e) % n
 
-**Q: Why is RSA called asymmetric?**
-A: It uses two different keys — public (for encryption) and private (for decryption). Anyone can encrypt, only the holder of the private key can decrypt.
+Decrypt:
 
-**Q: What is the mathematical basis of RSA security?**
-A: The difficulty of factoring large semiprime numbers (n = p × q).
+decrypt = (cipher ** d) % n
+Important Theory
+RSA is asymmetric cryptography.
+Public key = (e,n)
+Private key = (d,n)
+Security depends on factorization difficulty.
+Viva Questions & Answers
+Q: Why is RSA asymmetric?
 
-**Q: What is Euler's totient function?**
-A: φ(n) counts integers from 1 to n that are coprime to n. For n = p×q (both prime): φ(n) = (p−1)(q−1).
+A: Uses separate public and private keys.
 
-**Q: What is the Extended Euclidean Algorithm?**
-A: It finds x, y such that `ax + by = gcd(a, b)`. Used to find the modular inverse of e.
+Q: Why must p and q be prime?
 
-**Q: Why must gcd(e, φ) = 1?**
-A: So that e has a modular inverse d. If gcd ≠ 1, d doesn't exist and decryption is impossible.
+A: RSA mathematics depends on primes.
 
-**Q: How does `pow(M, e, n)` work efficiently?**
-A: Python's built-in pow uses **modular exponentiation** (square-and-multiply), which is O(log e).
+Q: Why must gcd(e, phi)=1?
 
-**Q: Can RSA encrypt long messages directly?**
-A: No. RSA is slow and encrypts blocks < n. In practice, RSA encrypts a symmetric key, and the actual data is encrypted with AES (hybrid encryption).
+A: So modular inverse d exists.
 
-**Q: What are typical RSA key sizes?**
-A: 2048 or 4096 bits for n. The primes in this code are small (educational only).
+Q: What is modular inverse?
 
----
+A: Number d such that:
 
-## A6 — Diffie-Hellman Key Exchange
+(e×d)modϕ=1
+Q: What is Euler's Totient Function?
+ϕ(n)=(p−1)(q−1)
+Q: Why use pow(m,e,n) in real RSA?
 
-**File:** [A6.html](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A6.html)
+A: Efficient modular exponentiation.
 
-### Aim
-Implement the Diffie-Hellman Key Exchange protocol using HTML + JavaScript.
+Q: Can RSA encrypt large files?
 
-### Theory
-- **Purpose:** Allows two parties to agree on a **shared secret key** over an insecure channel without transmitting the key itself.
-- **Type:** Key exchange protocol (not encryption).
-- Based on the **Discrete Logarithm Problem (DLP)**.
+A: No. RSA encrypts symmetric keys; AES encrypts actual data.
 
-**Steps:**
-1. Agree on public parameters: prime **P** and generator **G**.
-2. Alice picks private key **a**, computes public key `A = G^a mod P`, sends A to Bob.
-3. Bob picks private key **b**, computes public key `B = G^b mod P`, sends B to Alice.
-4. Alice computes shared secret: `s = B^a mod P`.
-5. Bob computes shared secret: `s = A^b mod P`.
-6. Both get the **same secret** because `G^(ab) mod P = G^(ba) mod P`.
+Q: Typical RSA key sizes?
 
-### Code Walkthrough
+A: 2048 or 4096 bits.
 
-**`power_mod(base, exp, mod)`** — Modular exponentiation using square-and-multiply:
-```javascript
-while (exp > 0) {
-    if (exp % 2 === 1) result = (result * base) % mod;
-    exp = Math.floor(exp / 2);
-    base = (base * base) % mod;
-}
-```
+Q: What is digital signature?
 
-**`exchange()`** — Main function:
-1. Reads P, G, a, b from input fields.
-2. Computes `alicePublic = G^a mod P` and `bobPublic = G^b mod P`.
-3. Computes `aliceSecret = B^a mod P` and `bobSecret = A^b mod P`.
-4. Verifies both secrets match.
+A: Encrypting hash using private key.
 
-### Sample I/O (Default values: P=23, G=5, a=6, b=15)
-```
-Alice sends: A = 5^6 mod 23 = 8
-Bob sends:   B = 5^15 mod 23 = 19
-Alice computes: 19^6 mod 23 = 2
-Bob computes:   8^15 mod 23 = 2
-Shared Secret Key = 2 (Both match!)
-```
+A6 — Diffie-Hellman Key Exchange
+What is this Practical?
 
-### Viva Q&A
+Implements Diffie-Hellman key exchange to create a shared secret over insecure channel.
 
-**Q: What problem does Diffie-Hellman solve?**
-A: It allows two parties to establish a shared secret over an insecure channel without ever transmitting the secret itself.
+Code Explanation
+Input:
+Prime P
+Generator G
+Private keys a, b
 
-**Q: What is the Discrete Logarithm Problem?**
-A: Given G, P, and `A = G^a mod P`, it's computationally hard to find `a`. This one-way property makes DH secure.
+Compute:
 
-**Q: Does DH encrypt data?**
-A: No. It only exchanges a key. The shared secret is then used with a symmetric cipher (like AES) to encrypt data.
+A = G^a mod P
+B = G^b mod P
 
-**Q: What is a Man-in-the-Middle (MITM) attack on DH?**
-A: An attacker intercepts and replaces public keys, establishing separate shared secrets with each party. **Solution:** Use authenticated DH (digital signatures/certificates).
+Shared secret:
 
-**Q: What is a generator G?**
-A: A primitive root modulo P — its powers generate all integers from 1 to P−1. Ensures all possible keys are reachable.
+s = B^a mod P
+s = A^b mod P
+Important Theory
+DH performs key exchange, not encryption.
+Security depends on Discrete Logarithm Problem.
+Viva Questions & Answers
+Q: Why do both users get same secret?
+G
+ab
+=G
+ba
+Q: What is the Discrete Log Problem?
 
-**Q: Why must P be prime?**
-A: Ensures the multiplicative group mod P has desirable mathematical properties (cyclic, of order P−1).
+A: Finding exponent from:
 
-**Q: What is the difference between DH and RSA?**
-A: DH is for **key exchange** (both parties compute a shared secret). RSA is for **encryption and digital signatures** (one party encrypts, the other decrypts).
+A=G
+a
+modP
 
----
+is computationally difficult.
 
-## 📝 General Theory Questions (Cross-Cutting)
+Q: What is MITM attack?
 
-**Q: What is the difference between symmetric and asymmetric encryption?**
-A: Symmetric uses the **same key** for encryption/decryption (DES, AES). Asymmetric uses a **key pair** — public + private (RSA).
+A: Attacker replaces exchanged public keys.
 
-**Q: What are confusion and diffusion?**
-A: **Confusion** = complex relationship between key and ciphertext (S-Boxes). **Diffusion** = spreading plaintext statistics across ciphertext (permutations, MixColumns).
+Q: What is modular exponentiation?
 
-**Q: What is a block cipher vs stream cipher?**
-A: Block cipher encrypts fixed-size blocks (DES=64-bit, AES=128-bit). Stream cipher encrypts one bit/byte at a time (RC4).
+A: Efficient calculation of large powers under modulo.
 
-**Q: What are block cipher modes of operation?**
-A: ECB (each block independent — insecure), CBC (chain blocks), CTR (counter mode — parallelizable), GCM (authenticated encryption).
+Q: Difference between RSA and DH?
+RSA → encryption + signatures
+DH → key exchange
+General Theory Questions
+Q: Symmetric vs Asymmetric Encryption?
+Symmetric → same key (AES, DES)
+Asymmetric → public/private keys (RSA)
+Q: Block Cipher vs Stream Cipher?
+Block → fixed-size blocks
+Stream → one bit/byte at a time
+Q: What are Confusion and Diffusion?
+Confusion → hides key relationship
+Diffusion → spreads plaintext influence
+Q: What is Hybrid Encryption?
 
-**Q: What is a digital signature?**
-A: Hash the message → encrypt hash with private key. Receiver decrypts with public key and compares hashes. Provides authentication, integrity, non-repudiation.
+A: RSA exchanges AES key; AES encrypts data.
 
-**Q: What is hashing vs encryption?**
-A: Hashing is **one-way** (MD5, SHA-256) — cannot recover original. Encryption is **two-way** — can decrypt with key.
-
----
-
-## 🔑 Quick Reference Table
-
-| # | Topic | Type | Key Size | Block Size | Rounds |
-|---|-------|------|----------|------------|--------|
-| A1 | Bitwise AND/XOR | Basic operation | N/A | N/A | N/A |
-| A2 | Columnar Transposition | Symmetric (transposition) | Variable | Variable | 1 |
-| A3 | DES | Symmetric (Feistel) | 56 bits | 64 bits | 16 |
-| A4 | AES-128 | Symmetric (SPN) | 128 bits | 128 bits | 10 |
-| A5 | RSA | Asymmetric | 1024–4096 bits | Variable | N/A |
-| A6 | Diffie-Hellman | Key Exchange | Variable | N/A | N/A |
+Q: What is the CIA Triad?
+Confidentiality
+Integrity
+Availability
+Quick Reference Table
+Practical	Topic	Type
+A1	Bitwise AND/OR/XOR	Basic Operations
+A2	Columnar Transposition	Symmetric
+A3	DES (Simplified)	Symmetric
+A4	AES-128	Symmetric
+A5	RSA	Asymmetric
+A6	Diffie-Hellman	Key Exchange
