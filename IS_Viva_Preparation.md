@@ -1,306 +1,439 @@
-# AI Practical Exam Viva Guide
+# 🛡️ Information Security — Viva Preparation Guide
 
-This guide is prepared from the codes in this folder for final practical exam preparation.
-It covers:
-- What each practical does
-- Key theory behind it
-- **Theory & usefulness** for each code file (definitions, role in AI, real-world value)
-- Likely viva questions and strong answers
-- Common debugging/improvement points examiners ask
+> Covers all 6 practicals: A1 → A6. Each section has **Aim, Theory, Code Walkthrough, Sample I/O, and Viva Q&A**.
 
 ---
 
-## Practical 1: `Assignment-A1.py` (DFS and BFS on Graph)
+## A1 — Bitwise Operations (AND & XOR)
 
-### What this practical is
-This program builds an **undirected graph** using adjacency lists and performs:
-- **DFS (Depth First Search)** using recursion
-- **BFS (Breadth First Search)** using queue (`collections.deque`)
+**File:** [A1.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A1.py)
 
-You enter edges and a start node, and it prints traversal order.
+### Aim
+Perform bitwise AND and XOR operations on each character of "Hello World" with the value 127.
 
-### Core concepts
-- Graph representation: dictionary of lists
-- Traversal strategies:
-  - DFS: go deep first, then backtrack
-  - BFS: visit level by level
-- Visited set prevents infinite loops in cyclic graphs
+### Theory
+| Operation | Symbol | Rule |
+|-----------|--------|------|
+| AND | `&` | Both bits must be 1 → 1 |
+| XOR | `^` | Different bits → 1, Same bits → 0 |
 
-### Theory & usefulness (`Assignment-A1.py`)
-- **What the underlying theory is:** A graph is a pair \((V, E)\) of vertices and edges. **DFS** formalizes *depth-priority* exploration of a **search tree** implicit in the graph; **BFS** formalizes *breadth-priority* exploration. Both are **uninformed** (blind) search strategies: they only use connectivity, not a goal estimate. The **visited** set implements the closed list idea so you do not expand the same state twice—essential when the graph has cycles.
-- **Why it matters in AI:** Almost every discrete AI problem (maze, planning, game tree, web crawl, dependency graph) eventually reduces to “move on a graph.” DFS and BFS are the two canonical ways to enumerate reachable states before you add heuristics or costs. Understanding their order of expansion is prerequisite for A*, IDA*, and many planners.
-- **How useful it is in practice:** **BFS** is used when you need **shortest hop count** in unweighted graphs (social degrees, network routing layers, level-order processing). **DFS** is used for **topological intuition**, cycle detection, connected components, and when memory for a wide frontier is costly. For viva: tie the code to “state space” and “complete vs optimal” (BFS is complete for finite branching; on unweighted graphs it is optimal for shortest path in edges).
+- **127 in binary** = `01111111` (7 bits set).
+- `AND 127` masks out the 8th bit (MSB), keeping only the lower 7 bits — equivalent to ensuring ASCII range.
+- `XOR 127` flips the lower 7 bits — acts as a simple reversible cipher.
 
-### Likely viva Q&A
-1. **Q: Difference between DFS and BFS?**  
-   **A:** DFS uses stack/recursion and explores one branch deeply before backtracking. BFS uses queue and explores nodes level by level. BFS gives shortest path in unweighted graph; DFS does not guarantee shortest.
+### Code Walkthrough
+1. `ord(ch)` converts character to its ASCII integer.
+2. `& 127` / `^ 127` performs the bitwise operation.
+3. `chr(result)` converts the result back to a character.
 
-2. **Q: Why use a visited set?**  
-   **A:** To avoid revisiting nodes and infinite loops in cyclic graphs.
+### Sample Output
+```
+AND with 127:
+  'H' (72) AND 127 = 72 -> 'H'
+XOR with 127:
+  'H' (72) XOR 127 = 55 -> '7'
+```
 
-3. **Q: Time complexity of DFS and BFS?**  
-   **A:** Both are `O(V + E)` where `V` is vertices and `E` is edges.
+### Viva Q&A
 
-4. **Q: Why is `deque` used in BFS?**  
-   **A:** `deque.popleft()` is efficient `O(1)`, unlike list pop from front.
+**Q: Why is 127 used?**
+A: 127 = `01111111`. AND with 127 strips the MSB (useful for ASCII). XOR with 127 flips lower 7 bits (simple cipher).
 
-5. **Q: Is this graph directed or undirected?**  
-   **A:** Undirected, because each edge is added in both directions (`u->v` and `v->u`).
+**Q: Is XOR reversible?**
+A: Yes! `A XOR K XOR K = A`. Applying XOR twice with the same key returns the original.
 
-### Important correction examiner may ask
-- `dfs(node, visited=set())` uses mutable default argument. Better style:
-  - use `visited=None`, then create set inside function.
+**Q: What is the difference between AND and XOR in cryptography?**
+A: AND loses information (not reversible). XOR is reversible and is the backbone of many ciphers (DES, AES, OTP).
 
----
+**Q: What happens if we AND 'H' (72) with 127?**
+A: 72 = `01001000`, 127 = `01111111`. Result = `01001000` = 72 = 'H'. Since 'H' is already < 128, the result is unchanged.
 
-## Practical 2: `Assignment-A2.py` (A* for 8-Puzzle)
-
-### What this practical is
-This solves the **8-puzzle** using **A\*** search.
-- Goal state is fixed as:
-  - `[[1,2,3],[4,5,6],[7,8,0]]`
-- Heuristic `h(n)` = number of misplaced tiles (excluding blank `0`)
-- `f(n) = g(n) + h(n)` where:
-  - `g(n)` = cost from start to current state
-  - `h(n)` = estimated cost to goal
-
-### Core concepts
-- Informed search (heuristic-based)
-- Priority queue (`heapq`) selects node with minimum `f`
-- State conversion to tuple for hashing in visited set
-- Neighbor generation by moving blank tile in 4 directions
-
-### Theory & usefulness (`Assignment-A2.py`)
-- **What the underlying theory is:** The 8-puzzle is a **state-space search** problem: nodes are board configurations, edges are legal moves. **A\*** evaluates nodes by \(f(n) = g(n) + h(n)\): **\(g\)** is exact cost from the start, **\(h\)** is an **heuristic estimate** of remaining cost to the goal. With a **min-heap**, you always expand the currently most promising partial solution. If **\(h\)** is **admissible** (never overestimates), A\* remains **optimal** for tree search; with consistent heuristics and graph search variants, optimality is preserved under standard conditions you can mention briefly in viva.
-- **Why it matters in AI:** A\* is the standard teaching bridge from blind search (BFS/DFS) to **heuristic planning** used in games, robotics, and puzzle solvers. It shows how **domain knowledge** (misplaced tiles) reduces search compared to uninformed methods.
-- **How useful it is in practice:** Same ideas scale to **pathfinding** (maps, games), **motion planning** (with different state spaces), and **scheduling** as graph search. Misplaced-tile count is simple and admissible but weak; **Manhattan distance** is still admissible for the 8-puzzle and usually expands far fewer nodes—good improvement talking point.
-
-### Likely viva Q&A
-1. **Q: Why A\* instead of BFS for 8-puzzle?**  
-   **A:** BFS is uninformed and explores many states. A\* uses heuristic to reach goal faster.
-
-2. **Q: What is heuristic in this code?**  
-   **A:** Misplaced tiles count.
-
-3. **Q: Is misplaced tile heuristic admissible?**  
-   **A:** Yes, it never overestimates true remaining moves.
-
-4. **Q: What data structure is used for open list?**  
-   **A:** Min-heap priority queue from `heapq`.
-
-5. **Q: Why convert list state to tuple?**  
-   **A:** Lists are mutable and unhashable; tuples are hashable for set membership.
-
-6. **Q: If no solution exists, what happens?**  
-   **A:** Function returns `None`, and program prints "No solution found."
-
-### Improvement points
-- Add solvability check using inversion count before running A\*.
-- Better heuristic: Manhattan distance gives stronger guidance than misplaced tiles.
+**Q: What is a truth table for XOR?**
+A: `0^0=0, 0^1=1, 1^0=1, 1^1=0`.
 
 ---
 
-## Practical 3: `Assignment-A3.py` (Selection Sort and Prim's MST)
+## A2 — Columnar Transposition Cipher
 
-### What this practical is
-Menu-driven program implementing:
-1. **Selection Sort** on user-entered numbers
-2. **Prim's algorithm** to find Minimum Spanning Tree (MST) from adjacency matrix
+**File:** [A2.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A2.py)
 
-### Core concepts
-- Selection sort repeatedly picks minimum from unsorted part
-- Prim grows MST by adding minimum weight edge from visited to unvisited node
-- Weighted connected undirected graph for MST
+### Aim
+Implement encryption and decryption using the Columnar Transposition Cipher.
 
-### Theory & usefulness (`Assignment-A3.py`)
-- **Selection sort — theory:** A **comparison sort** that maintains an invariant: after pass \(i\), the first \(i\) positions hold the \(i\) smallest elements in final order. It minimizes **writes** to memory (at most one swap per pass) but always does about \(\Theta(n^2)\) comparisons—so it is **not** used for large production datasets; it is pedagogical and sometimes acceptable for tiny \(n\) or very simple hardware.
-- **Prim’s MST — theory:** An MST is a **spanning tree** (connects all vertices, acyclic) with **minimum total edge weight**. **Prim’s** is a **greedy** algorithm: at each step, add the **cheapest edge** that connects the already chosen set to a new vertex. On connected graphs with nonnegative weights, this greedy choice is globally correct for MST.
-- **How useful:** Sorting is foundational everywhere (indexes, ranking). **MST** models **minimum-cost connectivity**: network design (fiber, power), **clustering** (single-linkage ideas), **approximation** for TSP heuristics, and **spanning** subgraphs in graph ML pipelines. For viva: Prim is “grow a tree from one root”; Kruskal is “sort edges globally”—same problem, different greedy view.
+### Theory
+- A **transposition cipher** rearranges characters without substituting them.
+- The plaintext is written row-by-row into a matrix whose column count = key length.
+- Columns are read out in the **alphabetical order of the key** to produce ciphertext.
 
-### Likely viva Q&A
-1. **Q: How selection sort works?**  
-   **A:** For each index `i`, find minimum element from `i...end` and swap with `arr[i]`.
+**Example:** Message = `HELLO WORLD`, Key = `HACK`
 
-2. **Q: Time complexity of selection sort?**  
-   **A:** `O(n^2)` in best, average, and worst case.
+Key order: H=2, A=0, C=1, K=3 → read columns in order 0,1,2,3 → columns: A, C, H, K.
 
-3. **Q: What is MST?**  
-   **A:** A spanning tree connecting all vertices with minimum total edge weight and no cycles.
+### Code Walkthrough
 
-4. **Q: Prim vs Kruskal?**  
-   **A:** Prim grows from a start vertex using local minimum connecting edge. Kruskal sorts all edges globally and adds edges avoiding cycles.
+**Encrypt:**
+1. Calculate `rows = ceil(len(msg) / cols)`.
+2. Pad message with `_` if needed.
+3. Fill a matrix row-by-row.
+4. `key_order = sorted(range(cols), key=lambda k: key[k])` → gets column indices sorted by key character.
+5. Read columns in `key_order` to produce ciphertext.
 
-5. **Q: Complexity of Prim in this code?**  
-   **A:** About `O(V^2)` due to adjacency matrix scanning.
+**Decrypt:**
+1. Create an empty matrix.
+2. Fill column-by-column in key order from the ciphertext.
+3. Read row-by-row to recover plaintext; strip trailing `_`.
 
-6. **Q: Why 0 means no edge here?**  
-   **A:** In this representation, non-diagonal zero indicates absence of edge.
+### Sample I/O
+```
+Enter message: HELLO WORLD
+Enter key: HACK
+Encrypted: EWL LOLDHOR_L
+Decrypted: HELLO WORLD
+```
 
-### Improvement points
-- Handle disconnected graph case explicitly.
-- Replace `minimum = 999` with `float("inf")`.
+### Viva Q&A
 
----
+**Q: What type of cipher is this — substitution or transposition?**
+A: Transposition. Characters are rearranged, not replaced.
 
-## Practical 4: `Assignment-B4.py` (N-Queen using Backtracking)
+**Q: Why do we pad with underscores?**
+A: To fill the matrix completely so every column has the same length.
 
-### What this practical is
-Solves N-Queen problem using recursion and backtracking.
-- Places one queen per row
-- Tracks unsafe columns and diagonals
-- Prints one valid board configuration using `Q` and `.`
+**Q: How is the key used to determine column order?**
+A: Characters in the key are sorted alphabetically; their original indices give the column read order.
 
-### Core concepts
-- Constraint Satisfaction Problem (CSP)
-- Backtracking:
-  - choose position
-  - recurse
-  - undo choice if dead end
-- Diagonal indexing:
-  - right diagonal index = `i + j`
-  - left diagonal index = `i - j + n - 1`
+**Q: What is the time complexity?**
+A: O(n) where n = message length (we iterate through the message a constant number of times).
 
-### Theory & usefulness (`Assignment-B4.py`)
-- **What the underlying theory is:** N-Queens is a classic **CSP**: variables are row positions (or column placements), domains are columns, **constraints** are “no two queens attack” (column + two diagonal relations). **Backtracking** is **depth-first search** over partial assignments: assign a variable, recurse; if a constraint fails, **undo** (backtrack) and try another value. It is systematic **trial and error** with pruning—far better than generating all \(n^n\)-style blind placements.
-- **Why it matters in AI:** CSP + backtracking is the backbone of **scheduling**, **timetabling**, **sudoku/solvers**, **configuration**, and many **logic puzzles**. It teaches **constraint propagation** intuition (even if this small code only uses implicit checking).
-- **How useful it is:** Real systems add **forward checking**, **arc consistency (AC-3)**, and **variable ordering** (MRV) to cut search drastically. For viva: say N-Queens is a toy model of “assign resources under mutual exclusion rules.”
+**Q: Is this cipher secure?**
+A: Not by modern standards. It can be broken by frequency analysis and known-plaintext attacks. Often combined with substitution (product cipher) for better security.
 
-### Likely viva Q&A
-1. **Q: Why backtracking is used in N-Queen?**  
-   **A:** It systematically explores valid placements and backtracks when constraints fail.
-
-2. **Q: What constraints are checked?**  
-   **A:** Same column, same left diagonal, same right diagonal.
-
-3. **Q: Why arrays of size `2*n` for diagonals?**  
-   **A:** Total possible diagonal indices are up to `2n-1`; size `2*n` safely covers indexing.
-
-4. **Q: Does this code print all solutions?**  
-   **A:** No, it returns after first valid solution (`return True`).
-
-5. **Q: Worst-case time complexity?**  
-   **A:** Exponential, roughly `O(n!)` for brute-force style backtracking.
-
-### Improvement points
-- Modify to collect and print all solutions.
-- Validate `n` input (`n >= 1`).
+**Q: Difference between columnar and rail-fence transposition?**
+A: Rail-fence writes in a zigzag pattern across rows. Columnar writes row-by-row and reads column-by-column based on key order.
 
 ---
 
-## Practical 5: `Assignment-B5.py` (Rule-based Chatbot using NLTK)
+## A3 — DES (Data Encryption Standard)
 
-### What this practical is
-A simple customer-support chatbot using:
-- `nltk.chat.util.Chat`
-- Pattern-response pairs (regex + fixed replies)
-- Interactive conversation loop (`chatbot.converse()`)
+**File:** [A3.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A3.py)
 
-### Core concepts
-- Pattern matching with regular expressions
-- Rule-based NLP (not ML-based learning)
-- Reflections support pronoun conversion (from NLTK utility)
+### Aim
+Implement the DES algorithm in pure Python (no libraries).
 
-### Theory & usefulness (`Assignment-B5.py`)
-- **What the underlying theory is:** This is **symbolic / rule-based AI**: language behavior is specified as **if pattern then response** rules (often regex). There is **no learned model**; behavior is **transparent** and **editable** by humans. NLTK’s `Chat` is a thin engine: match input against ordered patterns, return a template—optionally with **reflection** (simple pronoun swaps). Theoretically it sits opposite **statistical NLP** and **deep learning**: coverage is limited to what authors encoded.
-- **Why it matters in AI curricula:** It shows the **knowledge engineering** era of NLP and is still relevant as a **baseline** and for **controlled domains** where you need predictable answers.
-- **How useful it is in practice:** Great for **FAQs**, **IT support scripts**, **keyword triage**, and **compliance-sensitive** bots where every utterance should be traceable to a rule. Weak for **paraphrase**, **long context**, and **open-domain** chat—there you move to retrieval + LLMs or intent classifiers. For viva: emphasize **interpretability** vs **scalability of coverage**.
+### Theory
+- **Type:** Symmetric block cipher.
+- **Block size:** 64 bits. **Key size:** 64 bits (56 effective + 8 parity).
+- **Rounds:** 16 rounds of a Feistel network.
+- **Structure:** Feistel cipher — same structure for encryption & decryption (just reverse key order).
 
-### Likely viva Q&A
-1. **Q: Is this chatbot AI or hardcoded?**  
-   **A:** It is rule-based AI using predefined regex patterns and responses; it does not learn from data.
+**Steps:**
+1. **Initial Permutation (IP)** — rearranges the 64 input bits.
+2. Split into **Left (32 bits)** and **Right (32 bits)**.
+3. **16 Feistel Rounds:** each round applies Expansion → XOR with round key → S-Box substitution → Permutation (P).
+4. **Swap** left and right after last round.
+5. **Final Permutation (FP)** — inverse of IP.
 
-2. **Q: Why `nltk.download('punkt')`?**  
-   **A:** It downloads tokenizer resources; in this code, chat mainly uses regex rules, but NLTK setup often includes this dependency.
+**Key Schedule:**
+1. Apply **PC-1** (64→56 bits, removes parity bits).
+2. Split into C and D (28 bits each).
+3. For each round: left-shift C and D, then apply **PC-2** (56→48 bits) to get round key.
 
-3. **Q: What is the role of `pairs` list?**  
-   **A:** It maps user input patterns to possible bot responses.
+### Code Walkthrough
 
-4. **Q: What happens if input does not match any pattern?**  
-   **A:** Chat may give default/empty behavior depending on `Chat` handling; typically no meaningful custom response unless fallback rule is added.
+| Function | Purpose |
+|----------|---------|
+| `permute(block, table)` | Rearranges bits according to a permutation table |
+| `left_shift(bits, n)` | Circular left shift by n positions |
+| `xor(a, b)` | Bitwise XOR of two bit arrays |
+| `str_to_bits(s)` | String → list of bits (8 bits per char) |
+| `bits_to_hex(bits)` | Bits → hex string |
+| `generate_keys(key_bits)` | Produces 16 round keys using PC-1, shifts, PC-2 |
+| `des_round(L, R, key)` | One Feistel round: E → XOR → S-Box → P → XOR with L |
+| `des(msg_bits, keys)` | Full DES: IP → 16 rounds → swap → FP |
 
-5. **Q: How can we improve it?**  
-   **A:** Add more patterns, fallback intent, context memory, or switch to ML/NLU approach.
+**S-Box lookup (critical):** Each 6-bit chunk → row = bit0+bit5, col = bits1-4 → lookup 4-bit value.
 
-### Improvement points
-- Add catch-all fallback pattern for unmatched queries.
-- Make regex case-insensitive robustly.
+### Sample I/O
+```
+Enter 8-char message: HELLO123
+Enter 8-char key: MYSECRET
+Encrypted (hex): 2a1c5e8b3f7d4a90
+Decrypted: HELLO123
+```
 
----
+### Viva Q&A
 
-## Practical 6: `Assignment-C6.py` (Medical Expert System)
+**Q: What is a Feistel cipher?**
+A: A structure where plaintext is split into halves; one half is transformed and XORed with the other. Decryption uses the same algorithm with reversed keys.
 
-### What this practical is
-A small **expert system** for diagnosis based on symptoms.
-- Knowledge base maps diseases to symptom list
-- Program asks yes/no symptom questions
-- Computes score = number of matched symptoms for each disease
-- Displays disease(s) with highest score
+**Q: Why does DES use 16 rounds?**
+A: Provides sufficient diffusion and confusion. Fewer rounds are vulnerable to differential/linear cryptanalysis.
 
-### Core concepts
-- Knowledge base + inference
-- Rule-based decision support
-- Score-based matching (not probabilistic model)
-- Input validation loop (`yes/no`)
+**Q: What is the purpose of S-Boxes?**
+A: They provide **non-linearity** (confusion). They map 6 bits → 4 bits using a non-linear lookup table.
 
-### Theory & usefulness (`Assignment-C6.py`)
-- **What the underlying theory is:** An **expert system** encodes **domain knowledge** (here: diseases → symptoms) separately from the **inference procedure** (here: count symptom matches per disease and rank). This follows the classic **knowledge base + inference engine** split from early AI. The scoring used is a **simple evidential tally**, not **Bayesian** posteriors or **certainty factors** (MYCIN-style), but the *architecture* is the same family: **rule-based decision support**.
-- **Why it matters in AI:** It illustrates **knowledge representation** and **automated reasoning** without ML, and shows limitations (ties, no symptom importance, no negation/uncertainty in the basic score).
-- **How useful it is in practice:** **Clinical decision support**, **equipment fault diagnosis**, and **helpdesk trees** still use rule engines plus curated knowledge—often **combined** today with ML for risk scores. For viva: stress **education only**, **not** for real diagnosis; real tools need validated models, regulation, and human oversight.
+**Q: How is decryption done?**
+A: Same algorithm, but round keys are applied in reverse order (`round_keys[::-1]`).
 
-### Likely viva Q&A
-1. **Q: Why is this called expert system?**  
-   **A:** Because it uses domain knowledge encoded as rules/symptom mappings to infer possible diagnosis.
+**Q: Why is DES considered insecure today?**
+A: 56-bit key is too short — brute-force is feasible. Replaced by AES. Triple-DES (3DES) was a temporary fix.
 
-2. **Q: What inference approach is used?**  
-   **A:** Simple score-based matching over rule base (not full forward-chaining engine, but conceptually rule-based inference).
+**Q: What is the Avalanche Effect?**
+A: A small change in input (1 bit) causes ~50% change in output. DES achieves this through multiple rounds of S-box + permutation.
 
-3. **Q: Can multiple diseases be output?**  
-   **A:** Yes, if two or more diseases have the same maximum score.
+**Q: What are IP and FP?**
+A: Initial Permutation shuffles bits before processing. Final Permutation is the inverse of IP, applied after all rounds.
 
-4. **Q: Is this medically accurate for real diagnosis?**  
-   **A:** No, it is educational and simplified; real systems need large validated datasets and clinical supervision.
-
-5. **Q: How is invalid input handled?**  
-   **A:** `ask()` loops until user enters `yes` or `no`.
-
-### Improvement points
-- Add weighted symptoms instead of equal weights.
-- Add certainty percentage and tie-breaking logic.
+**Q: How many keys are generated and of what size?**
+A: 16 round keys, each 48 bits.
 
 ---
 
-## Cross-Practical Theory Questions (Very Common in Viva)
+## A4 — AES-128 (Advanced Encryption Standard)
 
-1. **What is the difference between uninformed and informed search?**  
-Uninformed search uses only problem definition (e.g., DFS/BFS), informed uses heuristic knowledge (e.g., A\*).
+**File:** [A4.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A4.py)
 
-2. **What is heuristic function?**  
-A function that estimates cost from current state to goal to guide search efficiently.
+### Aim
+Implement AES-128 encryption and decryption in pure Python.
 
-3. **What is backtracking?**  
-A recursive trial-and-error method that abandons partial solutions when they violate constraints.
+### Theory
+- **Type:** Symmetric block cipher (NOT Feistel).
+- **Block size:** 128 bits (16 bytes). **Key size:** 128 bits.
+- **Rounds:** 10 (for AES-128). AES-192 has 12, AES-256 has 14.
+- State is a **4×4 byte matrix** (column-major order).
 
-4. **What is a greedy choice in Prim's algorithm?**  
-At each step, choose minimum weight edge connecting visited and unvisited set.
+**Each round (1–9) has 4 steps:**
+1. **SubBytes** — substitute each byte using S-Box (non-linearity/confusion).
+2. **ShiftRows** — cyclically shift rows left (row 0: no shift, row 1: 1, row 2: 2, row 3: 3).
+3. **MixColumns** — matrix multiplication in GF(2⁸) (diffusion).
+4. **AddRoundKey** — XOR state with round key.
 
-5. **Difference between rule-based system and machine learning model?**  
-Rule-based uses manually written logic; ML learns patterns from data.
+**Round 10:** SubBytes → ShiftRows → AddRoundKey (no MixColumns).
 
-6. **What is time complexity and space complexity? Why important?**  
-They measure algorithm efficiency in resource usage and scalability.
+**Key Expansion:** Generates 11 round keys (176 bytes) from the original 16-byte key using RotWord, SubWord, and RCON.
+
+### Code Walkthrough
+
+| Function | Purpose |
+|----------|---------|
+| `sub_bytes(state)` | Replace each byte via S-Box lookup |
+| `shift_rows(s)` | Cyclic left-shift of rows |
+| `xtime(a)` | Multiply by 2 in GF(2⁸) — used in MixColumns |
+| `mix_columns(s)` | Matrix multiplication for diffusion |
+| `gmul(a, b)` | Galois Field multiplication (used in InvMixColumns) |
+| `add_round_key(state, key)` | XOR state with round key |
+| `key_expansion(key)` | Generate 44 words (176 bytes) of round keys |
+| `aes_encrypt / aes_decrypt` | Full 10-round AES process |
+
+### Sample I/O
+```
+Enter message (up to 16 chars): Hello AES World!
+Enter key (16 chars): MySecretKey12345
+Encrypted (hex): 8a3b2c... (32 hex chars)
+Decrypted: Hello AES World!
+```
+
+### Viva Q&A
+
+**Q: How is AES different from DES?**
+A: AES uses a Substitution-Permutation Network (SPN), not Feistel. AES has 128-bit blocks (vs. 64). AES key: 128/192/256 bits (vs. 56). AES is much more secure and faster.
+
+**Q: What is the S-Box and how is it generated?**
+A: Each byte is replaced: first find multiplicative inverse in GF(2⁸), then apply an affine transformation. It provides non-linearity.
+
+**Q: What is GF(2⁸)?**
+A: Galois Field of 256 elements. Arithmetic is done modulo an irreducible polynomial `x⁸ + x⁴ + x³ + x + 1` (0x11B). Used in MixColumns.
+
+**Q: Why is there no MixColumns in the last round?**
+A: It's omitted to make the structure symmetric for encryption/decryption. Including it would add no security.
+
+**Q: What does `xtime` do?**
+A: Multiplies a byte by 2 in GF(2⁸). If MSB is set, left-shift and XOR with 0x1B (the irreducible polynomial).
+
+**Q: How many round keys are generated?**
+A: 11 round keys (1 initial + 10 rounds) = 44 words = 176 bytes.
+
+**Q: What is the role of RCON?**
+A: Round constant used in key expansion to break symmetry between rounds.
+
+**Q: What are the AES key sizes and their corresponding rounds?**
+A: AES-128 → 10 rounds, AES-192 → 12 rounds, AES-256 → 14 rounds.
 
 ---
 
-## Quick Last-Minute Viva Answers (1-liners)
+## A5 — RSA Algorithm
 
-- **DFS uses stack/recursion, BFS uses queue.**
-- **BFS finds shortest path in unweighted graph.**
-- **A\* uses `f(n)=g(n)+h(n)` to choose best node.**
-- **N-Queen is a classic backtracking CSP.**
-- **Prim's algorithm finds MST in weighted connected graph.**
-- **Chatbot code is rule-based NLP, not deep learning.**
-- **Medical expert system uses symptom-rule matching.**
+**File:** [A5.py](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A5.py)
 
+### Aim
+Implement RSA encryption and decryption in pure Python.
 
-Prepare one dry run per practical and one improvement suggestion per practical; this creates a strong viva impression.
+### Theory
+- **Type:** Asymmetric (public-key) cipher.
+- Based on the mathematical difficulty of **factoring large numbers**.
 
+**Key Generation:**
+1. Choose two primes **p** and **q**.
+2. Compute **n = p × q**.
+3. Compute **φ(n) = (p−1)(q−1)** (Euler's totient).
+4. Choose **e** such that `1 < e < φ(n)` and `gcd(e, φ(n)) = 1`.
+5. Compute **d = e⁻¹ mod φ(n)** (modular inverse using Extended Euclidean Algorithm).
+6. **Public key = (e, n)**, **Private key = (d, n)**.
+
+**Encrypt:** C = M^e mod n  
+**Decrypt:** M = C^d mod n
+
+### Code Walkthrough
+
+| Function | Purpose |
+|----------|---------|
+| `gcd(a, b)` | Euclidean algorithm to find GCD |
+| `extended_gcd(a, b)` | Returns GCD and Bézout coefficients (x, y) |
+| `mod_inverse(e, phi)` | Finds d such that `e × d ≡ 1 (mod φ)` |
+| `is_prime(n)` | Trial division primality test |
+| `generate_keys(p, q)` | Computes n, φ, e, d and returns key pair |
+| `encrypt(text, pub)` | Encrypts each character: `pow(ord(ch), e, n)` |
+| `decrypt(cipher, priv)` | Decrypts each number: `chr(pow(c, d, n))` |
+
+### Sample I/O
+```
+Enter prime p: 61
+Enter prime q: 53
+Public Key  (e, n): (7, 3233)
+Private Key (d, n): (1783, 3233)
+Enter message: HI
+Encrypted: [2198, 2818]
+Decrypted: HI
+```
+
+### Viva Q&A
+
+**Q: Why is RSA called asymmetric?**
+A: It uses two different keys — public (for encryption) and private (for decryption). Anyone can encrypt, only the holder of the private key can decrypt.
+
+**Q: What is the mathematical basis of RSA security?**
+A: The difficulty of factoring large semiprime numbers (n = p × q).
+
+**Q: What is Euler's totient function?**
+A: φ(n) counts integers from 1 to n that are coprime to n. For n = p×q (both prime): φ(n) = (p−1)(q−1).
+
+**Q: What is the Extended Euclidean Algorithm?**
+A: It finds x, y such that `ax + by = gcd(a, b)`. Used to find the modular inverse of e.
+
+**Q: Why must gcd(e, φ) = 1?**
+A: So that e has a modular inverse d. If gcd ≠ 1, d doesn't exist and decryption is impossible.
+
+**Q: How does `pow(M, e, n)` work efficiently?**
+A: Python's built-in pow uses **modular exponentiation** (square-and-multiply), which is O(log e).
+
+**Q: Can RSA encrypt long messages directly?**
+A: No. RSA is slow and encrypts blocks < n. In practice, RSA encrypts a symmetric key, and the actual data is encrypted with AES (hybrid encryption).
+
+**Q: What are typical RSA key sizes?**
+A: 2048 or 4096 bits for n. The primes in this code are small (educational only).
+
+---
+
+## A6 — Diffie-Hellman Key Exchange
+
+**File:** [A6.html](file:///c:/Users/anujg/OneDrive/Desktop/MESWCOE/Sixth%20Semester/Practical%20Exam/IS/A6.html)
+
+### Aim
+Implement the Diffie-Hellman Key Exchange protocol using HTML + JavaScript.
+
+### Theory
+- **Purpose:** Allows two parties to agree on a **shared secret key** over an insecure channel without transmitting the key itself.
+- **Type:** Key exchange protocol (not encryption).
+- Based on the **Discrete Logarithm Problem (DLP)**.
+
+**Steps:**
+1. Agree on public parameters: prime **P** and generator **G**.
+2. Alice picks private key **a**, computes public key `A = G^a mod P`, sends A to Bob.
+3. Bob picks private key **b**, computes public key `B = G^b mod P`, sends B to Alice.
+4. Alice computes shared secret: `s = B^a mod P`.
+5. Bob computes shared secret: `s = A^b mod P`.
+6. Both get the **same secret** because `G^(ab) mod P = G^(ba) mod P`.
+
+### Code Walkthrough
+
+**`power_mod(base, exp, mod)`** — Modular exponentiation using square-and-multiply:
+```javascript
+while (exp > 0) {
+    if (exp % 2 === 1) result = (result * base) % mod;
+    exp = Math.floor(exp / 2);
+    base = (base * base) % mod;
+}
+```
+
+**`exchange()`** — Main function:
+1. Reads P, G, a, b from input fields.
+2. Computes `alicePublic = G^a mod P` and `bobPublic = G^b mod P`.
+3. Computes `aliceSecret = B^a mod P` and `bobSecret = A^b mod P`.
+4. Verifies both secrets match.
+
+### Sample I/O (Default values: P=23, G=5, a=6, b=15)
+```
+Alice sends: A = 5^6 mod 23 = 8
+Bob sends:   B = 5^15 mod 23 = 19
+Alice computes: 19^6 mod 23 = 2
+Bob computes:   8^15 mod 23 = 2
+Shared Secret Key = 2 (Both match!)
+```
+
+### Viva Q&A
+
+**Q: What problem does Diffie-Hellman solve?**
+A: It allows two parties to establish a shared secret over an insecure channel without ever transmitting the secret itself.
+
+**Q: What is the Discrete Logarithm Problem?**
+A: Given G, P, and `A = G^a mod P`, it's computationally hard to find `a`. This one-way property makes DH secure.
+
+**Q: Does DH encrypt data?**
+A: No. It only exchanges a key. The shared secret is then used with a symmetric cipher (like AES) to encrypt data.
+
+**Q: What is a Man-in-the-Middle (MITM) attack on DH?**
+A: An attacker intercepts and replaces public keys, establishing separate shared secrets with each party. **Solution:** Use authenticated DH (digital signatures/certificates).
+
+**Q: What is a generator G?**
+A: A primitive root modulo P — its powers generate all integers from 1 to P−1. Ensures all possible keys are reachable.
+
+**Q: Why must P be prime?**
+A: Ensures the multiplicative group mod P has desirable mathematical properties (cyclic, of order P−1).
+
+**Q: What is the difference between DH and RSA?**
+A: DH is for **key exchange** (both parties compute a shared secret). RSA is for **encryption and digital signatures** (one party encrypts, the other decrypts).
+
+---
+
+## 📝 General Theory Questions (Cross-Cutting)
+
+**Q: What is the difference between symmetric and asymmetric encryption?**
+A: Symmetric uses the **same key** for encryption/decryption (DES, AES). Asymmetric uses a **key pair** — public + private (RSA).
+
+**Q: What are confusion and diffusion?**
+A: **Confusion** = complex relationship between key and ciphertext (S-Boxes). **Diffusion** = spreading plaintext statistics across ciphertext (permutations, MixColumns).
+
+**Q: What is a block cipher vs stream cipher?**
+A: Block cipher encrypts fixed-size blocks (DES=64-bit, AES=128-bit). Stream cipher encrypts one bit/byte at a time (RC4).
+
+**Q: What are block cipher modes of operation?**
+A: ECB (each block independent — insecure), CBC (chain blocks), CTR (counter mode — parallelizable), GCM (authenticated encryption).
+
+**Q: What is a digital signature?**
+A: Hash the message → encrypt hash with private key. Receiver decrypts with public key and compares hashes. Provides authentication, integrity, non-repudiation.
+
+**Q: What is hashing vs encryption?**
+A: Hashing is **one-way** (MD5, SHA-256) — cannot recover original. Encryption is **two-way** — can decrypt with key.
+
+---
+
+## 🔑 Quick Reference Table
+
+| # | Topic | Type | Key Size | Block Size | Rounds |
+|---|-------|------|----------|------------|--------|
+| A1 | Bitwise AND/XOR | Basic operation | N/A | N/A | N/A |
+| A2 | Columnar Transposition | Symmetric (transposition) | Variable | Variable | 1 |
+| A3 | DES | Symmetric (Feistel) | 56 bits | 64 bits | 16 |
+| A4 | AES-128 | Symmetric (SPN) | 128 bits | 128 bits | 10 |
+| A5 | RSA | Asymmetric | 1024–4096 bits | Variable | N/A |
+| A6 | Diffie-Hellman | Key Exchange | Variable | N/A | N/A |
