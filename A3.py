@@ -165,8 +165,8 @@ def decrypt_block(ciphertext, round_keys):
 
 # Main Program
 
-plaintext = "ABCDEFGH"
-key = "12345678"
+plaintext = input("Enter Plain Text : ")
+key = input("Enter Key : ")
 
 print("Plain Text :", plaintext)
 print("Key        :", key)
